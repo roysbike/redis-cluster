@@ -1,0 +1,54 @@
+version: "3"
+services: 
+  keepalived: 
+    build: ./keepalived
+    container_name: keepalived
+    environment: 
+      - KEEPALIVED_INTERFACE=ens18
+      - KEEPALIVED_PRIORITY=100
+      - KEEPALIVED_VIRTUAL_IP=10.10.100.14
+      - KEEPALIVED_PASSWORD=123
+      - KEEPALIVED_ROUTER_ID=13
+    network_mode: host
+    privileged: true
+    restart: always
+  proxy: 
+    build: ./haproxy
+    container_name: haproxy_redis
+    depends_on: 
+      - redis01
+    environment: 
+      - HAPROXY_STATS_PORT=80
+      - HAPROXY_PORT=6379
+      - HAPROXY_TIMEOUT_CONNECT=2s
+      - HAPROXY_TIMEOUT_SERVER=6s
+      - HAPROXY_TIMEOUT_CLIENT=6s
+      - HAPROXY_BACKEND1=10.10.0.1:6379
+      - HAPROXY_BACKEND2=10.10.0.2:6379
+      - HAPROXY_BACKEND3=10.10.0.3:6379
+    network_mode: bridge
+    ports: 
+      - "8080:80"
+      - "6380:6379"
+    restart: always
+  redis01: 
+    build: ./redis
+    container_name: redis01
+    environment: 
+      - REDIS_IS_SLAVE=false
+      - MASTER_HOST=10.10.100.1
+      - MASTER_PORT=6379
+      - SLAVE_PRIORITY=1
+      - SENTINEL_QUORUM=2
+      - SENTINEL_DOWN_AFTER=1000
+      - SENTINEL_FAILOVER=5000
+      - REDIS_MAXMEMORY=2gb
+    network_mode: bridge
+    ports: 
+      - "6379:6379"
+      - "26379:26379"
+    privileged: true
+    restart: always
+    volumes: 
+      - "./data:/data"
+
