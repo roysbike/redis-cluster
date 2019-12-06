@@ -6,7 +6,7 @@ services:
     environment: 
       - KEEPALIVED_INTERFACE=ens18
       - KEEPALIVED_PRIORITY=100
-      - KEEPALIVED_VIRTUAL_IP=10.10.100.14
+      - KEEPALIVED_VIRTUAL_IP=10.10.0.5
       - KEEPALIVED_PASSWORD=123
       - KEEPALIVED_ROUTER_ID=13
     network_mode: host
